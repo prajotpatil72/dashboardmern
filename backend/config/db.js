@@ -1,20 +1,20 @@
-// db.js — Handles the MongoDB connection using Mongoose
 const mongoose = require('mongoose');
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
-// MongoDB connection function
 const connectDB = async () => {
-  try {
-    // Connect to MongoDB using the URI from .env
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    
-    console.log(`✅ [MongoDB] Database Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`❌ [MongoDB Error] Connection Failed: ${error.message}`);
-    process.exit(1); // Exit process if DB connection fails
-  }
+    try {
+        // Try MONGODB_URI first, then MONGO_URI as fallback
+        const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+        
+        if (!uri) {
+            throw new Error('MongoDB URI not found in environment variables');
+        }
+
+        const conn = await mongoose.connect(uri);
+        console.log(`✅ [MongoDB] Database Connected: ${conn.connection.host}`);
+    } catch (error) {
+        console.error(`❌ [MongoDB] Connection Error: ${error.message}`);
+        process.exit(1);
+    }
 };
 
 module.exports = connectDB;
-

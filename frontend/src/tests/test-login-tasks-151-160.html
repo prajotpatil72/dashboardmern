@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page Test - Tasks 151-160</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f3f4f6;
+        }
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f9fafb;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        .code {
+            background: #1f2937;
+            color: #10b981;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            background: #d1fae5;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #1f2937; margin-bottom: 40px;">
+        🎨 Authentication Pages Test (Tasks 151-160)
+    </h1>
+
+    <div class="test-section">
+        <div class="test-title">✅ Manual Testing Checklist</div>
+        <ul class="checklist">
+            <li>
+                <strong>Task 151:</strong> Login.jsx page created
+                <br><small>Visit /login to see the new page</small>
+            </li>
+            <li>
+                <strong>Task 152:</strong> Wide layout (1200px centered)
+                <br><small>Page should be centered with max-width 1200px</small>
+            </li>
+            <li>
+                <strong>Task 153:</strong> Guest section with large icon, CTA, feature list
+                <br><small>Left side should show Zap icon, title, and "Continue as Guest" button</small>
+            </li>
+            <li>
+                <strong>Task 154:</strong> Session duration information displayed
+                <br><small>Should show "24-Hour Session" info with clock icon</small>
+            </li>
+            <li>
+                <strong>Task 155:</strong> Guest login implementation
+                <br><small>Click "Continue as Guest" → should authenticate and redirect to /search</small>
+            </li>
+            <li>
+                <strong>Task 156:</strong> Loading states with spinners
+                <br><small>Button should show spinning loader during authentication</small>
+            </li>
+            <li>
+                <strong>Task 157:</strong> Error messages with styled alert
+                <br><small>If login fails, red alert should appear with error message</small>
+            </li>
+            <li>
+                <strong>Task 158:</strong> Dashboard preview (800px)
+                <br><small>Right side should show preview card with placeholder</small>
+            </li>
+            <li>
+                <strong>Task 159:</strong> Background gradient and card shadows
+                <br><small>Page should have subtle blue gradient background, cards with shadows</small>
+            </li>
+            <li>
+                <strong>Task 160:</strong> Quota information displayed
+                <br><small>Should show "100 Searches Per Day" with chart icon</small>
+            </li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🧪 Testing Steps</div>
+        
+        <p><strong>1. Start the dev server:</strong></p>
+        <div class="code">npm run dev</div>
+
+        <p><strong>2. Test the login page:</strong></p>
+        <div class="code">
+# Visit the login page<br>
+http://localhost:5173/login<br><br>
+# Check visual elements:<br>
+✓ 2-column layout (left: login form, right: features)<br>
+✓ Large Zap icon in gradient circle<br>
+✓ "Continue as Guest" button<br>
+✓ 4 feature cards with icons<br>
+✓ Dashboard preview placeholder<br>
+✓ Session info (24 hours)<br>
+✓ Quota info (100 searches)
+        </div>
+
+        <p><strong>3. Test authentication flow:</strong></p>
+        <div class="code">
+# Clear any existing session<br>
+localStorage.clear();<br><br>
+# Go to login page<br>
+http://localhost:5173/login<br><br>
+# Click "Continue as Guest"<br>
+# Should show:<br>
+✓ Loading spinner in button<br>
+✓ Button disabled during load<br>
+✓ Redirect to /search on success<br>
+✓ Error alert if authentication fails
+        </div>
+
+        <p><strong>4. Test error handling:</strong></p>
+        <div class="code">
+# To test error state (optional - stop backend):<br>
+# Stop your backend server<br>
+# Try to login<br>
+# Should show red error alert at top of card
+        </div>
+
+        <p><strong>5. Test dark mode:</strong></p>
+        <div class="code">
+# Toggle dark mode (if you have toggle in navbar)<br>
+# Or manually in browser console:<br>
+document.documentElement.classList.toggle('dark');<br><br>
+# Check that login page looks good in both themes
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🎨 Visual Verification</div>
+        <ul class="checklist">
+            <li>
+                <strong>Layout:</strong> 2-column grid, properly centered
+            </li>
+            <li>
+                <strong>Background:</strong> Subtle gradient from gray to blue/indigo
+            </li>
+            <li>
+                <strong>Cards:</strong> White cards with rounded corners and shadows
+            </li>
+            <li>
+                <strong>Icons:</strong> All feature cards have colored icons
+            </li>
+            <li>
+                <strong>Typography:</strong> Clear hierarchy with proper sizing
+            </li>
+            <li>
+                <strong>Button:</strong> Large, prominent CTA with hover effects
+            </li>
+            <li>
+                <strong>Preview Card:</strong> Aspect ratio video box with placeholder
+            </li>
+            <li>
+                <strong>Responsive:</strong> Minimum 1024px width enforced
+            </li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">📊 Task Completion Status</div>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f3f4f6;">
+                    <th style="padding: 12px; text-align: left;">Task</th>
+                    <th style="padding: 12px; text-align: left;">Description</th>
+                    <th style="padding: 12px; text-align: left;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td style="padding: 12px;">151</td><td style="padding: 12px;">Create Login.jsx</td><td style="padding: 12px;"><span class="status">✅ Complete</span></td></tr>
+                <tr><td style="padding: 12px;">152</td><td style="padding: 12px;">Wide layout (1200px)</td><td style="padding: 12px;"><span class="status">✅ Complete</span></td></tr>
+                <tr><td style="padding: 12px;">153</td><td style="padding: 12px;">Guest section with CTA</td><td style="padding: 12px;"><span class="status">✅ Complete</span></td></tr>
+                <tr><td style="padding: 12px;">154</td><td style="padding: 12px;">Session duration info</td><td style="padding: 12px;"><span class="status">✅ Complete</span></td></tr>
+                <tr><td style="padding: 12px;">155</td><td style="padding: 12px;">Guest login implementation</td><td style="padding: 12px;"><span class="status">✅ Complete</span></td></tr>
+                <tr><td style="padding: 12px;">156</td><td style="padding: 12px;">Loading states</td><td style="padding: 12px;"><span class="status">✅ Complete</span></td></tr>
+                <tr><td style="padding: 12px;">157</td><td style="padding: 12px;">Error alert component</td><td style="padding: 12px;"><span class="status">✅ Complete</span></td></tr>
+                <tr><td style="padding: 12px;">158</td><td style="padding: 12px;">Dashboard preview</td><td style="padding: 12px;"><span class="status">✅ Complete</span></td></tr>
+                <tr><td style="padding: 12px;">159</td><td style="padding: 12px;">Gradient & shadows</td><td style="padding: 12px;"><span class="status">✅ Complete</span></td></tr>
+                <tr><td style="padding: 12px;">160</td><td style="padding: 12px;">Quota information</td><td style="padding: 12px;"><span class="status">✅ Complete</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🔍 Key Features to Verify</div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            <div style="padding: 16px; background: #f0f9ff; border-radius: 8px;">
+                <strong>✨ Visual Design</strong>
+                <ul style="margin: 8px 0; padding-left: 20px; font-size: 14px;">
+                    <li>Gradient background</li>
+                    <li>Modern card shadows</li>
+                    <li>Clean 2-column layout</li>
+                    <li>Professional color scheme</li>
+                </ul>
+            </div>
+            <div style="padding: 16px; background: #fef3c7; border-radius: 8px;">
+                <strong>⚡ Functionality</strong>
+                <ul style="margin: 8px 0; padding-left: 20px; font-size: 14px;">
+                    <li>Guest authentication works</li>
+                    <li>Loading states display</li>
+                    <li>Error handling works</li>
+                    <li>Redirects to /search</li>
+                </ul>
+            </div>
+            <div style="padding: 16px; background: #d1fae5; border-radius: 8px;">
+                <strong>📊 Information Display</strong>
+                <ul style="margin: 8px 0; padding-left: 20px; font-size: 14px;">
+                    <li>24-hour session info</li>
+                    <li>100 searches quota</li>
+                    <li>4 feature highlights</li>
+                    <li>Dashboard preview</li>
+                </ul>
+            </div>
+            <div style="padding: 16px; background: #fce7f3; border-radius: 8px;">
+                <strong>🎯 UX Details</strong>
+                <ul style="margin: 8px 0; padding-left: 20px; font-size: 14px;">
+                    <li>Large CTA button</li>
+                    <li>Clear value proposition</li>
+                    <li>Icons for visual appeal</li>
+                    <li>Smooth transitions</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🎉 Success!</div>
+        <p>If all checks pass, Tasks 151-160 are complete! 🚀</p>
+        <p>Your authentication page is now production-ready with:</p>
+        <ul style="color: #6b7280; padding-left: 20px;">
+            <li>Professional desktop-optimized design</li>
+            <li>Fully functional guest authentication</li>
+            <li>Error handling and loading states</li>
+            <li>Clear value proposition and features</li>
+            <li>Beautiful gradient backgrounds and shadows</li>
+        </ul>
+    </div>
+</body>
+</html>

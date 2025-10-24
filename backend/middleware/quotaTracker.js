@@ -1,17 +1,27 @@
 const User = require('../models/User');
 
 /**
- * Quota tracking middleware
- * Tracks and enforces API usage quotas for guests
+ * Quota tracking middleware (Tasks 187)
+ * Tracks and enforces API usage quotas for authenticated guests
+ * Development: No quota limits
+ * Production: Enforces quota limits
  */
 const quotaTracker = async (req, res, next) => {
   try {
-    // Skip if no user authenticated
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        error: 'Authentication required. Please obtain a guest token.'
-      });
+    // Skip quota tracking in development
+    if (process.env.NODE_ENV !== 'production') {
+      res.setHeader('X-Quota-Used', 'N/A (dev mode)');
+      res.setHeader('X-Quota-Limit', 'unlimited (dev mode)');
+      res.setHeader('X-Quota-Remaining', 'unlimited (dev mode)');
+      return next();
+    }
+
+    // If no user authenticated, allow but don't track quota
+    if (!req.user || !req.isAuthenticated) {
+      res.setHeader('X-Quota-Used', 'N/A');
+      res.setHeader('X-Quota-Limit', 'N/A');
+      res.setHeader('X-Quota-Remaining', 'N/A');
+      return next();
     }
 
     const user = req.user;
@@ -33,38 +43,34 @@ const quotaTracker = async (req, res, next) => {
     // Track this request (only for search endpoints)
     const isSearchRequest = req.path.includes('/search') || 
                            req.path.includes('/video') || 
-                           req.path.includes('/channel');
-
+                           req.path.includes('/channel') ||
+                           req.path.includes('/trending');
+    
     if (isSearchRequest && req.method === 'GET') {
       // Increment quota
       await User.findByIdAndUpdate(user._id, {
         $inc: { quotaUsed: 1 },
         $push: {
           searchHistory: {
-            query: req.query.q || req.params.videoId || req.params.channelId,
+            query: req.query.q || req.params.videoId || req.params.channelId || 'trending',
             timestamp: new Date(),
-            endpoint: req.path
+            endpoint: req.path,
+            resultCount: 0 // Will be updated by the route handler if needed
           }
         }
       });
 
-      // Update user object for this request
-      user.quotaUsed += 1;
+      // Set response headers
+      res.setHeader('X-Quota-Used', user.quotaUsed + 1);
+      res.setHeader('X-Quota-Limit', user.quotaLimit);
+      res.setHeader('X-Quota-Remaining', user.quotaLimit - (user.quotaUsed + 1));
     }
-
-    // Attach quota info to response headers
-    res.setHeader('X-Quota-Used', user.quotaUsed);
-    res.setHeader('X-Quota-Limit', user.quotaLimit);
-    res.setHeader('X-Quota-Remaining', user.quotaLimit - user.quotaUsed);
-    res.setHeader('X-Quota-Resets-At', user.expiresAt);
 
     next();
   } catch (error) {
-    console.error('Quota tracker error:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Failed to track quota usage'
-    });
+    console.error('[Quota Tracker] Error:', error);
+    // Don't block request on quota tracking errors
+    next();
   }
 };
 

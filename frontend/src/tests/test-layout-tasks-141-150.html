@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layout Test - Tasks 141-150</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f3f4f6;
+        }
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f9fafb;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .status.pending { background: #fef3c7; color: #92400e; }
+        .status.complete { background: #d1fae5; color: #065f46; }
+        .code {
+            background: #1f2937;
+            color: #10b981;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #1f2937; margin-bottom: 40px;">
+        🚀 Layout & Navigation Test (Tasks 141-150)
+    </h1>
+
+    <div class="test-section">
+        <div class="test-title">✅ Manual Testing Checklist</div>
+        <p style="color: #6b7280; margin-bottom: 16px;">
+            Follow these steps to verify all tasks are working correctly:
+        </p>
+        <ul class="checklist">
+            <li>
+                <strong>Task 141-142:</strong> Layout structure with sidebar (240px) and navbar
+                <br><small>Check that sidebar is fixed on left, navbar spans top</small>
+            </li>
+            <li>
+                <strong>Task 143:</strong> Sidebar with navigation links
+                <br><small>Verify all 5 links are visible: Dashboard, Search, Analytics, Builder, Settings</small>
+            </li>
+            <li>
+                <strong>Task 144:</strong> All navigation items present
+                <br><small>Each link should have an icon and label</small>
+            </li>
+            <li>
+                <strong>Task 145:</strong> Active route highlighting
+                <br><small>Click different routes - active link should have blue background</small>
+            </li>
+            <li>
+                <strong>Task 146:</strong> Top navbar with user dropdown
+                <br><small>User icon in top-right should open dropdown menu</small>
+            </li>
+            <li>
+                <strong>Task 147:</strong> Quota progress bar in navbar
+                <br><small>Should show "X/100 searches" with progress bar</small>
+            </li>
+            <li>
+                <strong>Task 148:</strong> Logout button in dropdown
+                <br><small>Click user icon → should see "Logout" button</small>
+            </li>
+            <li>
+                <strong>Task 149:</strong> Dark mode toggle
+                <br><small>Click moon/sun icon - UI should switch between light/dark</small>
+            </li>
+            <li>
+                <strong>Task 150:</strong> GuestRoute protection
+                <br><small>Clear localStorage, try accessing /dashboard - should redirect to login</small>
+            </li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🧪 Testing Commands</div>
+        
+        <p><strong>1. Start the dev server:</strong></p>
+        <div class="code">npm run dev</div>
+
+        <p><strong>2. Test the following URLs:</strong></p>
+        <div class="code">
+http://localhost:5173/          (Home - should show login button)<br>
+http://localhost:5173/login     (Login page)<br>
+http://localhost:5173/dashboard (Protected - requires login)<br>
+http://localhost:5173/search    (Protected - requires login)<br>
+http://localhost:5173/analytics (Protected - requires login)
+        </div>
+
+        <p><strong>3. Test authentication flow:</strong></p>
+        <div class="code">
+1. Go to /login<br>
+2. Click "Continue as Guest"<br>
+3. Should redirect to /search with layout visible<br>
+4. Check sidebar, navbar, dark mode toggle, logout
+        </div>
+
+        <p><strong>4. Test protected routes:</strong></p>
+        <div class="code">
+# Open browser console (F12)<br>
+localStorage.clear();<br>
+# Then try to visit /dashboard<br>
+# Should redirect to /login
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🎨 Visual Checks</div>
+        <ul class="checklist">
+            <li>
+                <strong>Desktop Layout:</strong> Minimum width 1024px enforced
+            </li>
+            <li>
+                <strong>Sidebar:</strong> Exactly 240px wide, fixed position, scrollable if needed
+            </li>
+            <li>
+                <strong>Navbar:</strong> 64px height (h-16), spans full width minus sidebar
+            </li>
+            <li>
+                <strong>Active Links:</strong> Blue background (bg-primary-50) when active
+            </li>
+            <li>
+                <strong>Dark Mode:</strong> Toggles between light and dark themes smoothly
+            </li>
+            <li>
+                <strong>Quota Bar:</strong> Changes color: green (>50%), yellow (20-50%), red (<20%)
+            </li>
+            <li>
+                <strong>Dropdown:</strong> Appears below user icon with slide-down animation
+            </li>
+            <li>
+                <strong>Icons:</strong> All navigation items have lucide-react icons
+            </li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">📊 Task Completion Status</div>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f3f4f6;">
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e5e7eb;">Task</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e5e7eb;">Description</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e5e7eb;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">141</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">Create Layout.jsx</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                        <span class="status complete">✅ Complete</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">142</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">Desktop design: sidebar + navbar</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                        <span class="status complete">✅ Complete</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">143</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">Create Sidebar.jsx</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                        <span class="status complete">✅ Complete</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">144</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">Navigation items</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                        <span class="status complete">✅ Complete</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">145</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">Active route highlighting</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                        <span class="status complete">✅ Complete</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">146</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">Create Navbar.jsx</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                        <span class="status complete">✅ Complete</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">147</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">Quota progress bar</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                        <span class="status complete">✅ Complete</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">148</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">Logout button</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                        <span class="status complete">✅ Complete</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">149</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">Dark mode toggle</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                        <span class="status complete">✅ Complete</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px;">150</td>
+                    <td style="padding: 12px;">Create GuestRoute.jsx</td>
+                    <td style="padding: 12px;">
+                        <span class="status complete">✅ Complete</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🎉 All Done!</div>
+        <p style="color: #6b7280;">
+            If all manual checks pass, Tasks 141-150 are complete! 🚀
+        </p>
+        <p style="color: #6b7280;">
+            Open <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">http://localhost:5173</code> 
+            to test your new layout!
+        </p>
+    </div>
+</body>
+</html>

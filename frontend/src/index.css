@@ -1,68 +1,175 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* Task 83: Tailwind directives with desktop-first approach */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* Desktop-first approach - minimum width enforcement */
+@layer base {
+  html {
+    @apply antialiased;
+    min-width: 1024px;
   }
-  a:hover {
-    color: #747bff;
+  
+  body {
+    @apply bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-gray-100;
+    @apply transition-colors duration-200;
+    min-width: 1024px;
   }
-  button {
-    background-color: #f9f9f9;
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Custom scrollbar for desktop */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-dark-surface;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 dark:bg-gray-600 rounded-lg;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500 dark:bg-gray-500;
+  }
+}
+
+/* Task 98: Custom component classes for reusability */
+@layer components {
+  /* Desktop Card Styles */
+  .card {
+    @apply bg-white dark:bg-dark-surface rounded-2xl shadow-card;
+    @apply border border-gray-200 dark:border-dark-border;
+    @apply transition-all duration-200;
+  }
+  
+  .card-hover {
+    @apply hover:shadow-card-hover hover:scale-[1.02];
+  }
+  
+  /* Desktop Button Styles - Large interactive elements */
+  .btn {
+    @apply px-6 py-3 rounded-xl font-medium;
+    @apply transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    min-height: 48px; /* Desktop touch target */
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary-600 text-white;
+    @apply hover:bg-primary-700 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-gray-200 dark:bg-dark-surface text-gray-900 dark:text-gray-100;
+    @apply hover:bg-gray-300 dark:hover:bg-gray-700 focus:ring-gray-400;
+  }
+  
+  .btn-danger {
+    @apply btn bg-red-600 text-white;
+    @apply hover:bg-red-700 focus:ring-red-500;
+  }
+  
+  /* Desktop Input Styles - Large form elements */
+  .input {
+    @apply w-full px-4 py-3 rounded-xl;
+    @apply bg-white dark:bg-dark-surface;
+    @apply border border-gray-300 dark:border-dark-border;
+    @apply text-gray-900 dark:text-gray-100;
+    @apply placeholder-gray-400 dark:placeholder-gray-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply transition-all duration-200;
+    min-height: 48px;
+  }
+  
+  /* Desktop Container */
+  .container-desktop {
+    @apply mx-auto px-8 py-6;
+    max-width: 1920px;
+  }
+  
+  /* Page Title */
+  .page-title {
+    @apply text-4xl font-bold text-gray-900 dark:text-gray-100;
+    @apply mb-6;
+  }
+  
+  /* Section Title */
+  .section-title {
+    @apply text-2xl font-semibold text-gray-800 dark:text-gray-200;
+    @apply mb-4;
+  }
+  
+  /* Stat Card */
+  .stat-card {
+    @apply card p-6;
+    @apply flex flex-col gap-2;
+  }
+  
+  .stat-value {
+    @apply text-3xl font-bold text-gray-900 dark:text-gray-100;
+  }
+  
+  .stat-label {
+    @apply text-sm text-gray-600 dark:text-gray-400 uppercase tracking-wide;
+  }
+  
+  /* Loading Skeleton */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 dark:bg-gray-700 rounded;
+  }
+  
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .badge-success {
+    @apply badge bg-engagement-high/10 text-engagement-high;
+  }
+  
+  .badge-warning {
+    @apply badge bg-engagement-medium/10 text-engagement-medium;
+  }
+  
+  .badge-danger {
+    @apply badge bg-engagement-low/10 text-engagement-low;
+  }
+}
+
+/* Task 99: Utility classes */
+@layer utilities {
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-purple-600;
+  }
+  
+  /* Glassmorphism effect */
+  .glass {
+    @apply bg-white/80 dark:bg-dark-surface/80 backdrop-blur-lg;
+  }
+  
+  /* Smooth transitions */
+  .transition-smooth {
+    @apply transition-all duration-300 ease-in-out;
+  }
+}
+
+/* Dark mode specific overrides */
+.dark {
+  color-scheme: dark;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
   }
 }

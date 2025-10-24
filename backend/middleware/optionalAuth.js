@@ -1,10 +1,12 @@
 const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/auth');
 const User = require('../models/User');
+const TokenBlacklist = require('../models/TokenBlacklist');
 
 /**
  * Optional authentication middleware
  * Verifies token if present, allows unauthenticated access otherwise
+ * Now includes blacklist checking for logout functionality
  */
 const optionalAuth = async (req, res, next) => {
   try {
@@ -20,6 +22,14 @@ const optionalAuth = async (req, res, next) => {
 
     // Extract token
     const token = authHeader.split(' ')[1];
+
+    // Task 78: Check if token is blacklisted
+    const isBlacklisted = await TokenBlacklist.isBlacklisted(token);
+    if (isBlacklisted) {
+      req.user = null;
+      req.isAuthenticated = false;
+      return next();
+    }
 
     // Verify token
     const decoded = jwt.verify(token, jwtSecret);

@@ -1,35 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+/**
+ * App.jsx - Updated with Analytics Dashboard (Tasks 241-250)
+ */
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
+import Layout from './components/Layout';
+import GuestRoute from './components/GuestRoute';
+import Login from './pages/Login';
+import Search from './pages/Search';
+import Analytics from './pages/Analytics';
+import ThemeTestPage from './pages/ThemeTest';
+import AuthTestPage from './pages/AuthTest';
+import TokenTestPage from './pages/TokenTest';
+import ApiTestPage from './pages/ApiTest';
 
-function App() {
-  const [count, setCount] = useState(0)
+const HomePage = () => {
+  const { loginAsGuest } = useAuth();
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
+    <div className="min-h-screen flex items-center justify-center bg-gradient-dark">
+      <div className="text-center animate-fade-in">
+        <h1 className="text-6xl font-bold text-gradient mb-4">
+          YouTube Analytics Dashboard
+        </h1>
+        <p className="text-xl text-gray-400 mb-8">
+          Desktop-optimized analytics platform for YouTube data
         </p>
+        <div className="flex gap-4 justify-center">
+          <button onClick={loginAsGuest} className="btn-primary">
+            Get Started as Guest
+          </button>
+          <a href="/search" className="btn-secondary">
+            Explore Search
+          </a>
+        </div>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
+};
+
+function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-dark">
+        <div className="animate-spin text-6xl">⏳</div>
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<Login />} />
+      
+      <Route element={<Layout />}>
+        <Route path="/search" element={<GuestRoute><Search /></GuestRoute>} />
+        <Route path="/analytics" element={<GuestRoute><Analytics /></GuestRoute>} />
+        <Route path="/theme" element={<GuestRoute><ThemeTestPage /></GuestRoute>} />
+        <Route path="/auth-test" element={<GuestRoute><AuthTestPage /></GuestRoute>} />
+        <Route path="/token-test" element={<GuestRoute><TokenTestPage /></GuestRoute>} />
+        <Route path="/api-test" element={<GuestRoute><ApiTestPage /></GuestRoute>} />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;

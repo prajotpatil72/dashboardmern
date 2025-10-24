@@ -1,0 +1,54 @@
+/**
+ * Task 89: Create main.jsx with BrowserRouter wrapper
+ * Task 110: Wrap App with AuthProvider
+ * Task 134: Setup QueryClientProvider
+ * Task 135: Add React Query DevTools in development mode
+ */
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { AuthProvider } from './contexts/AuthContext';
+import { queryClient } from './lib/queryClient';
+import './index.css';
+import App from './App.jsx';
+
+/**
+ * Task 134-135: Application root with all providers
+ * Provider order matters:
+ * 1. StrictMode - React development checks
+ * 2. BrowserRouter - Routing
+ * 3. QueryClientProvider - React Query
+ * 4. AuthProvider - Authentication context
+ */
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <BrowserRouter>
+      {/* Task 134: QueryClientProvider wraps entire app */}
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+        
+        {/* Task 135: React Query DevTools - only in development */}
+        {import.meta.env.DEV && (
+          <ReactQueryDevtools
+            initialIsOpen={false}
+            position="bottom-right"
+            buttonPosition="bottom-right"
+          />
+        )}
+      </QueryClientProvider>
+    </BrowserRouter>
+  </StrictMode>
+);
+
+/**
+ * Development logging
+ */
+if (import.meta.env.DEV) {
+  console.log('✅ [App] React Query initialized');
+  console.log('✅ [App] DevTools available (bottom-right corner)');
+  console.log('✅ [App] Auth context initialized');
+}

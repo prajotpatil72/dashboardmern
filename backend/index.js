@@ -2,15 +2,20 @@
 const path = require('path');
 const app = require('./server'); // Import the configured Express app
 const connectDB = require('./config/db'); // Import the database connection function
+const { startCleanupJob } = require('./jobs/cleanupExpiredSessions'); // ADD THIS
 
 // Load environment variables from .env file
-// The path ensures it loads the .env file in the backend directory
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 // ------------------------------------
 // 1. Database Connection
 // ------------------------------------
 connectDB();
+
+// ------------------------------------
+// ADD: Start Cleanup Job
+// ------------------------------------
+startCleanupJob();
 
 // ------------------------------------
 // 2. Server Listener

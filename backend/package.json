@@ -1,28 +1,49 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "MERN YouTube Analytics Dashboard - Backend API",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
-  },
-  "keywords": [],
+  "start": "node index.js",
+  "dev": "nodemon index.js",
+  "test": "node tests/run-all-tests.js",
+  "test:all": "node tests/run-all-tests.js",
+  "test:youtube": "node tests/test-youtube-service.js",
+  "test:youtube-routes": "node tests/youtube-routes.test.js",
+  "test:parsers": "node tests/parse-youtube-data.test.js",
+  "test:cache": "node tests/cache-system.test.js",
+  "test:auth": "node tests/auth-flow.test.js",
+  "test:integration": "node tests/integration.test.js",
+  "test:user": "node tests/user-model.test.js",
+  "test:jwt": "node tests/jwt-utils.test.js",
+  "test:config": "node tests/youtube-config.test.js"
+},
+  "keywords": [
+    "youtube",
+    "analytics",
+    "dashboard",
+    "mern",
+    "api"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^3.1.10"
   },
   "dependencies": {
+    "axios": "^1.12.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
+    "express-validator": "^7.2.1",
+    "googleapis": "^164.0.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.20.0",
     "mongoose": "^8.19.1",
     "morgan": "^1.10.1",
+    "node-cron": "^4.2.1",
     "uuid": "^13.0.0"
   }
 }

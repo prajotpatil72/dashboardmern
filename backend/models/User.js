@@ -47,10 +47,13 @@ const userSchema = new mongoose.Schema({
     index: true
   },
   expiresAt: {
-  type: Date,
-  required: true
-  // index removed - it's defined below with TTL
-}
+    type: Date,
+    required: true,
+    default: function() {
+      return new Date(Date.now() + 24 * 60 * 60 * 1000);
+    }
+    // No index here - TTL index defined separately below for better control
+  }
 }, {
   timestamps: true
 });
@@ -90,6 +93,7 @@ userSchema.pre('save', function(next) {
 userSchema.index({ userType: 1, createdAt: -1 });
 
 // TTL index - MongoDB will automatically delete expired documents
+// Note: This is the ONLY place we define the expiresAt index
 userSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 // Ensure virtuals are included in JSON output
