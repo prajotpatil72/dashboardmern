@@ -1,6 +1,7 @@
 /**
- * Analytics Dashboard - UPDATED
- * Tasks 241-300 Complete: Full-width desktop layout with tabs and charts
+ * Analytics Dashboard - UPDATED WITH ENGAGEMENT TAB
+ * Tasks 241-270 Complete: Full-width desktop layout with tabs and charts
+ * NEW: Tasks 261-270 - Engagement Analytics Tab
  */
 
 import React, { useState, useEffect } from 'react';
@@ -12,10 +13,11 @@ import TabNavigation from '../components/dashboard/TabNavigation';
 import ExportButtons from '../components/dashboard/ExportButtons';
 import DashboardSkeleton from '../components/dashboard/DashboardSkeleton';
 import OverviewTab from '../components/dashboard/charts/OverviewTab';
+import EngagementTab from '../components/dashboard/charts/EngagementTab'; // NEW
 import CustomChartBuilder from '../components/dashboard/charts/CustomChartBuilder';
 
 /**
- * Tasks 241-300: Analytics Dashboard with Charts
+ * Tasks 241-270: Analytics Dashboard with Charts
  */
 const Analytics = () => {
   const navigate = useNavigate();
@@ -38,13 +40,14 @@ const Analytics = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Task 244: Redirect to /search if no videos selected
-  useEffect(() => {
-    if (!loading && selectedVideos.length === 0) {
-      const timer = setTimeout(() => navigate('/search'), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [loading, selectedVideos.length, navigate]);
+  // Task 244: Show empty state instead of redirecting
+  // Removed redirect - now shows landing page
+  // useEffect(() => {
+  //   if (!loading && selectedVideos.length === 0) {
+  //     const timer = setTimeout(() => navigate('/search'), 100);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [loading, selectedVideos.length, navigate]);
 
   // Show loading skeleton
   if (loading) {
@@ -58,25 +61,71 @@ const Analytics = () => {
     );
   }
 
-  // Task 244: Show message if no videos selected
+  // Task 244: Show landing page if no videos selected
   if (selectedVideos.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-12 max-w-md text-center border border-gray-200 dark:border-gray-700">
-          <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            No Videos Selected
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Please select videos from the search page to analyze.
-          </p>
-          <button
-            onClick={() => navigate('/search')}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Go to Search
-          </button>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-[1920px] mx-auto px-20 py-20">
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-xl p-16 text-center border-2 border-dashed border-gray-300 dark:border-gray-700">
+            <div className="max-w-2xl mx-auto">
+              {/* Icon */}
+              <div className="mb-8">
+                <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900/30 mb-4">
+                  <svg className="w-12 h-12 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Title */}
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Welcome to YouTube Analytics
+              </h1>
+              
+              {/* Description */}
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+                Get started by searching for videos and selecting the ones you want to analyze. 
+                You'll see powerful insights about engagement, performance, and content strategy.
+              </p>
+
+              {/* Features */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-left">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+                  <div className="text-3xl mb-3">📊</div>
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-2">Overview Analytics</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">View performance metrics and engagement rates</p>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+                  <div className="text-3xl mb-3">💬</div>
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-2">Engagement Insights</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Analyze likes, comments, and correlations</p>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+                  <div className="text-3xl mb-3">⚡</div>
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-2">Export Data</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Download your analysis as CSV or PDF</p>
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <button
+                onClick={() => navigate('/search')}
+                className="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Search Videos to Get Started
+              </button>
+
+              {/* Helper text */}
+              <p className="text-sm text-gray-500 dark:text-gray-500 mt-6">
+                💡 Tip: Select multiple videos for better insights
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -122,7 +171,7 @@ const Analytics = () => {
       </div>
 
       {/* Task 250: Add CSS for smooth transitions */}
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -144,6 +193,7 @@ const Analytics = () => {
 /**
  * Render content based on active tab
  * Tasks 251-260: Overview tab with charts
+ * Tasks 261-270: Engagement tab with scatter plot and dual-axis chart (NEW)
  * Tasks 291-300: Custom tab with CustomChartBuilder
  */
 const renderTabContent = (tab, videos) => {
@@ -153,12 +203,8 @@ const renderTabContent = (tab, videos) => {
       return <OverviewTab videos={videos} />;
 
     case 'engagement':
-      return <PlaceholderTab 
-        title="❤️ Engagement Analytics"
-        description="Analyze likes, comments, and engagement rates for your videos."
-        message="Tasks 261-270: Scatter plots and dual-axis charts coming next!"
-        videoCount={videos.length}
-      />;
+      // Tasks 261-270: Engagement tab with EngagementBreakdown and LikesVsCommentsChart (NEW)
+      return <EngagementTab videos={videos} />;
 
     case 'content-strategy':
       return <PlaceholderTab 

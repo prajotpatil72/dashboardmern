@@ -14,10 +14,9 @@ import {
 function Sidebar() {
   // Task 144: Navigation items
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: Home },
+    { name: 'Home', path: '/dashboard', icon: Home },
     { name: 'Search', path: '/search', icon: Search },
     { name: 'Analytics', path: '/analytics', icon: BarChart3 },
-    { name: 'Custom Builder', path: '/builder', icon: Wrench },
     { name: 'Settings', path: '/settings', icon: Settings },
   ];
 

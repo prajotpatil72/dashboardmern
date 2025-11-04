@@ -1,5 +1,5 @@
 /**
- * CustomChartBuilder Component - FIXED
+ * CustomChartBuilder Component - WITH LANDING PAGE
  * Tasks 291-300: Interactive chart builder with user-selected metrics
  * Uses real video data (no mock data)
  */
@@ -11,13 +11,94 @@ import {
 import { Sparkles, Download, RefreshCw, TrendingUp } from 'lucide-react';
 
 const CustomChartBuilder = ({ videos }) => {
+  // ========== LANDING PAGE WHEN NO VIDEOS ==========
+  if (!videos || videos.length === 0) {
+    return (
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            🎨 Custom Chart Builder
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Create custom visualizations by selecting your metrics and chart types
+          </p>
+        </div>
+
+        {/* Landing Page Content */}
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-12 border-2 border-dashed border-purple-300 dark:border-purple-700">
+          
+          {/* Icon */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-purple-100 dark:bg-purple-900/30 mb-4">
+              <Sparkles className="w-10 h-10 text-purple-600 dark:text-purple-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              No Videos Selected
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+              Select videos from the search page to start building custom charts
+            </p>
+          </div>
+
+          {/* Feature Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 text-center border border-gray-200 dark:border-gray-700">
+              <div className="text-3xl mb-3">📊</div>
+              <h4 className="font-bold text-gray-900 dark:text-white mb-2">Scatter Plots</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Find correlations</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 text-center border border-gray-200 dark:border-gray-700">
+              <div className="text-3xl mb-3">📊</div>
+              <h4 className="font-bold text-gray-900 dark:text-white mb-2">Bar Charts</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Compare values</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 text-center border border-gray-200 dark:border-gray-700">
+              <div className="text-3xl mb-3">📈</div>
+              <h4 className="font-bold text-gray-900 dark:text-white mb-2">Line Charts</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Track trends</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 text-center border border-gray-200 dark:border-gray-700">
+              <div className="text-3xl mb-3">📉</div>
+              <h4 className="font-bold text-gray-900 dark:text-white mb-2">Area Charts</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Visualize totals</p>
+            </div>
+          </div>
+
+          {/* Features */}
+          <div className="mt-8 max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+            <h4 className="font-bold text-gray-900 dark:text-white mb-4">✨ Powerful Features</h4>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-green-500">✓</span>
+                <span className="text-gray-700 dark:text-gray-300">Custom axis selection</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-green-500">✓</span>
+                <span className="text-gray-700 dark:text-gray-300">Color coding</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-green-500">✓</span>
+                <span className="text-gray-700 dark:text-gray-300">Dynamic sizing</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-green-500">✓</span>
+                <span className="text-gray-700 dark:text-gray-300">Export to CSV</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ========== ACTUAL CHART BUILDER (YOUR EXISTING CODE) ==========
   const [chartType, setChartType] = useState('scatter');
   const [xAxis, setXAxis] = useState('durationMinutes');
   const [yAxis, setYAxis] = useState('viewCount');
   const [colorBy, setColorBy] = useState('categoryName');
   const [sizeBy, setSizeBy] = useState('engagementRate');
 
-  // MOVED UP: Format number helper function (must be before useMemo)
   const formatNumber = (num) => {
     if (!num) return '0';
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
@@ -59,12 +140,10 @@ const CustomChartBuilder = ({ videos }) => {
     { value: 'none', label: 'None (Fixed Size)' }
   ];
 
-  // Process video data
   const processedData = useMemo(() => {
     if (!videos || videos.length === 0) return [];
 
     return videos.map(v => {
-      // Extract published features safely
       const publishedFeatures = v.publishedFeatures || {};
       
       return {
@@ -83,7 +162,6 @@ const CustomChartBuilder = ({ videos }) => {
     });
   }, [videos]);
 
-  // Generate chart data based on selections
   const chartData = useMemo(() => {
     if (processedData.length === 0) return [];
 
@@ -91,7 +169,6 @@ const CustomChartBuilder = ({ videos }) => {
     const yOption = axisOptions.find(o => o.value === yAxis);
 
     if (chartType === 'bar' || chartType === 'line' || chartType === 'area') {
-      // Group data by X-axis category
       if (xOption.type === 'category') {
         const grouped = {};
         processedData.forEach(v => {
@@ -112,7 +189,6 @@ const CustomChartBuilder = ({ videos }) => {
           return a.name - b.name;
         });
       } else {
-        // Sort by numeric x-axis
         return processedData
           .sort((a, b) => a[xAxis] - b[xAxis])
           .map((v, i) => ({
@@ -124,7 +200,6 @@ const CustomChartBuilder = ({ videos }) => {
       }
     }
 
-    // Scatter plot data
     return processedData.map(v => ({
       x: v[xAxis],
       y: v[yAxis],
@@ -135,7 +210,6 @@ const CustomChartBuilder = ({ videos }) => {
     }));
   }, [processedData, xAxis, yAxis, colorBy, sizeBy, chartType, axisOptions]);
 
-  // Get unique colors for color coding
   const uniqueColors = useMemo(() => {
     if (colorBy === 'none') return { default: '#3b82f6' };
     
@@ -154,7 +228,6 @@ const CustomChartBuilder = ({ videos }) => {
     return colors;
   }, [processedData, colorBy]);
 
-  // Generate insights
   const insights = useMemo(() => {
     if (processedData.length === 0) return 'No data available';
 
@@ -162,7 +235,6 @@ const CustomChartBuilder = ({ videos }) => {
     const yOption = axisOptions.find(o => o.value === yAxis);
 
     if (chartType === 'scatter') {
-      // Calculate correlation
       const xVals = processedData.map(v => v[xAxis]);
       const yVals = processedData.map(v => v[yAxis]);
       const xMean = xVals.reduce((a, b) => a + b, 0) / xVals.length;
@@ -185,7 +257,6 @@ const CustomChartBuilder = ({ videos }) => {
       return `${correlationText} (r = ${correlation.toFixed(2)}) between ${xOption.label} and ${yOption.label}`;
     }
 
-    // For bar/line/area charts
     if (chartData.length > 0) {
       const sortedData = [...chartData].sort((a, b) => b.value - a.value);
       return `Highest average ${yOption.label}: ${sortedData[0]?.name} (${formatNumber(sortedData[0]?.value)})`;
@@ -203,7 +274,6 @@ const CustomChartBuilder = ({ videos }) => {
   };
 
   const handleExport = () => {
-    // Create CSV export
     const xOption = axisOptions.find(o => o.value === xAxis);
     const yOption = axisOptions.find(o => o.value === yAxis);
     
@@ -263,7 +333,7 @@ const CustomChartBuilder = ({ videos }) => {
     if (processedData.length === 0) {
       return (
         <div className="flex items-center justify-center h-[500px] text-gray-500 dark:text-gray-400">
-          No data available. Please select videos from the search page.
+          No data available
         </div>
       );
     }
@@ -291,10 +361,7 @@ const CustomChartBuilder = ({ videos }) => {
               tickFormatter={formatNumber}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Scatter 
-              data={chartData} 
-              fill="#3b82f6"
-            >
+            <Scatter data={chartData} fill="#3b82f6">
               {chartData.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
