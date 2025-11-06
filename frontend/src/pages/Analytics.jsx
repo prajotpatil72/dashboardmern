@@ -2,6 +2,7 @@
  * Analytics Dashboard - UPDATED WITH ENGAGEMENT TAB
  * Tasks 241-270 Complete: Full-width desktop layout with tabs and charts
  * NEW: Tasks 261-270 - Engagement Analytics Tab
+ * UPDATED: Removed Content Strategy and Tags tabs, renamed Custom to Advanced
  */
 
 import React, { useState, useEffect } from 'react';
@@ -13,7 +14,7 @@ import TabNavigation from '../components/dashboard/TabNavigation';
 import ExportButtons from '../components/dashboard/ExportButtons';
 import DashboardSkeleton from '../components/dashboard/DashboardSkeleton';
 import OverviewTab from '../components/dashboard/charts/OverviewTab';
-import EngagementTab from '../components/dashboard/charts/EngagementTab'; // NEW
+import EngagementTab from '../components/dashboard/charts/EngagementTab';
 import CustomChartBuilder from '../components/dashboard/charts/CustomChartBuilder';
 
 /**
@@ -85,7 +86,7 @@ const Analytics = () => {
               {/* Description */}
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
                 Get started by searching for videos and selecting the ones you want to analyze. 
-                You'll see powerful insights about engagement, performance, and content strategy.
+                You'll see powerful insights about engagement, performance, and advanced analytics.
               </p>
 
               {/* Features */}
@@ -104,8 +105,8 @@ const Analytics = () => {
                 
                 <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
                   <div className="text-3xl mb-3">⚡</div>
-                  <h3 className="font-bold text-gray-900 dark:text-white mb-2">Export Data</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Download your analysis as CSV or PDF</p>
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-2">Advanced Charts</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Create custom visualizations and export data</p>
                 </div>
               </div>
 
@@ -193,8 +194,8 @@ const Analytics = () => {
 /**
  * Render content based on active tab
  * Tasks 251-260: Overview tab with charts
- * Tasks 261-270: Engagement tab with scatter plot and dual-axis chart (NEW)
- * Tasks 291-300: Custom tab with CustomChartBuilder
+ * Tasks 261-270: Engagement tab with scatter plot and dual-axis chart
+ * Tasks 291-300: Advanced tab with CustomChartBuilder (renamed from Custom)
  */
 const renderTabContent = (tab, videos) => {
   switch (tab) {
@@ -203,63 +204,16 @@ const renderTabContent = (tab, videos) => {
       return <OverviewTab videos={videos} />;
 
     case 'engagement':
-      // Tasks 261-270: Engagement tab with EngagementBreakdown and LikesVsCommentsChart (NEW)
+      // Tasks 261-270: Engagement tab with EngagementBreakdown and LikesVsCommentsChart
       return <EngagementTab videos={videos} />;
 
-    case 'content-strategy':
-      return <PlaceholderTab 
-        title="💡 Content Strategy Insights"
-        description="Discover optimal upload times, video lengths, and content patterns."
-        message="Tasks 271-280: Duration analysis and heatmaps coming next!"
-        videoCount={videos.length}
-      />;
-
-    case 'tags':
-      return <PlaceholderTab 
-        title="🏷️ Tag Analysis"
-        description="Explore common tags and keywords used in your selected videos."
-        message="Tasks 281-290: Tag cloud and correlation matrix coming next!"
-        videoCount={videos.length}
-      />;
-
-    case 'custom':
-      // Tasks 291-300: Custom Chart Builder
+    case 'advanced':
+      // Tasks 291-300: Advanced Chart Builder (renamed from Custom)
       return <CustomChartBuilder videos={videos} />;
 
     default:
       return <OverviewTab videos={videos} />;
   }
 };
-
-/**
- * Placeholder component for tabs not yet implemented
- */
-const PlaceholderTab = ({ title, description, message, videoCount }) => (
-  <div className="space-y-6">
-    <div>
-      <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-        {title}
-      </h2>
-      <p className="text-gray-600 dark:text-gray-400">
-        {description}
-      </p>
-    </div>
-
-    <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-800 rounded-xl p-12 text-center border-2 border-dashed border-gray-300 dark:border-gray-600">
-      <div className="text-6xl mb-4">📈</div>
-      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        Charts Coming Soon!
-      </h3>
-      <p className="text-gray-600 dark:text-gray-400 mb-4">
-        {message}
-      </p>
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 max-w-md mx-auto">
-        <p className="text-sm text-gray-700 dark:text-gray-300">
-          <strong>Currently analyzing:</strong> {videoCount} videos
-        </p>
-      </div>
-    </div>
-  </div>
-);
 
 export default Analytics;

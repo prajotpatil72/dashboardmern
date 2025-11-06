@@ -1,6 +1,7 @@
 /**
  * DashboardHeader Component
  * Tasks 246-247: Display 4 summary stat cards
+ * UPDATED: Best Publishing Day now calculated by performance (views + engagement)
  */
 import React, { useMemo } from 'react';
 import { TrendingUp, Eye, ThumbsUp, Calendar } from 'lucide-react';
@@ -34,15 +35,37 @@ const DashboardHeader = ({ videos, searchMetadata }) => {
       return views > maxViews ? video : max;
     }, videos[0]);
 
-    // Best Publishing Day (most common)
-    const dayCount = {};
+    // Best Publishing Day (by performance - views + engagement)
+    const dayStats = {};
     videos.forEach(video => {
       const day = video.publishedFeatures?.dayOfWeekName || 'Unknown';
-      dayCount[day] = (dayCount[day] || 0) + 1;
+      if (!dayStats[day]) {
+        dayStats[day] = { totalViews: 0, totalEngagement: 0, count: 0 };
+      }
+      
+      dayStats[day].totalViews += parseInt(video.viewCount) || 0;
+      dayStats[day].totalEngagement += parseFloat(video.engagementRate) || 0;
+      dayStats[day].count += 1;
     });
-    const bestDay = Object.entries(dayCount).reduce((max, [day, count]) => {
-      return count > max.count ? { day, count } : max;
-    }, { day: 'N/A', count: 0 }).day;
+
+    // Calculate best day by average performance
+    const bestDayResult = Object.entries(dayStats).reduce((best, [day, stats]) => {
+      if (stats.count === 0 || day === 'Unknown') return best;
+      
+      const avgViews = stats.totalViews / stats.count;
+      const avgEngagement = stats.totalEngagement / stats.count;
+      
+      // Weighted score: 70% views, 30% engagement
+      // Multiply engagement by 1M to balance the scale with views
+      const score = (avgViews * 0.7) + (avgEngagement * 1000000 * 0.3);
+      
+      if (!best.score || score > best.score) {
+        return { day, score, avgViews, avgEngagement, count: stats.count };
+      }
+      return best;
+    }, { day: 'N/A', score: 0 });
+
+    const bestDay = bestDayResult.day;
 
     return {
       totalViews,

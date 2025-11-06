@@ -1,13 +1,17 @@
 /**
- * PerformanceOverview Chart - FIXED
+ * PerformanceOverview Chart - UPDATED
  * Tasks 251-254: Large Bar Chart (1000px × 500px) showing views by video
  * Colors bars by engagement rate (gradient red → green)
- * FIXED: Calculates engagement rate if missing
+ * NEW: Added Thumbnail Analysis button
  */
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { ImageIcon } from 'lucide-react';
+import ThumbnailAnalysisModal from '../ThumbnailAnalysisModal';
 
 const PerformanceOverview = ({ videos }) => {
+  const [showThumbnailModal, setShowThumbnailModal] = useState(false);
+
   // Helper to calculate engagement rate
   const calculateEngagement = (video) => {
     // If already provided, use it
@@ -104,13 +108,25 @@ const PerformanceOverview = ({ videos }) => {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Performance Overview
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          Top 20 videos by view count, colored by engagement rate
-        </p>
+      {/* Header with Thumbnail Analysis Button */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            Performance Overview
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Top 20 videos by view count, colored by engagement rate
+          </p>
+        </div>
+        
+        {/* Thumbnail Analysis Button */}
+        <button
+          onClick={() => setShowThumbnailModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
+        >
+          <ImageIcon size={20} />
+          <span>Thumbnail Analysis</span>
+        </button>
       </div>
 
       {/* Task 252: Large Bar Chart (1000px × 500px) */}
@@ -169,6 +185,13 @@ const PerformanceOverview = ({ videos }) => {
           </div>
         </div>
       </div>
+
+      {/* Thumbnail Analysis Modal */}
+      <ThumbnailAnalysisModal
+        videos={videos}
+        isOpen={showThumbnailModal}
+        onClose={() => setShowThumbnailModal(false)}
+      />
     </div>
   );
 };

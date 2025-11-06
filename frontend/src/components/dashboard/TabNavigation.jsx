@@ -1,9 +1,10 @@
 /**
  * TabNavigation Component
  * Task 243: Implement tab navigation for dashboard
+ * UPDATED: Removed Content Strategy and Tags, renamed Custom to Advanced
  */
 import React from 'react';
-import { BarChart3, Heart, Lightbulb, Tag, Settings } from 'lucide-react';
+import { BarChart3, Heart, Sparkles } from 'lucide-react';
 
 const TabNavigation = ({ activeTab, onTabChange }) => {
   const tabs = [
@@ -20,22 +21,10 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
       description: 'Likes & comments',
     },
     {
-      id: 'content-strategy',
-      label: 'Content Strategy',
-      icon: Lightbulb,
-      description: 'Optimal timing',
-    },
-    {
-      id: 'tags',
-      label: 'Tags',
-      icon: Tag,
-      description: 'Keyword analysis',
-    },
-    {
-      id: 'custom',
-      label: 'Custom',
-      icon: Settings,
-      description: 'Custom charts',
+      id: 'advanced',
+      label: 'Advanced',
+      icon: Sparkles,
+      description: '',
     },
   ];
 
@@ -45,7 +34,7 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
-
+          
           return (
             <button
               key={tab.id}
