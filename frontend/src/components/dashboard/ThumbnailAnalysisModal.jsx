@@ -2,14 +2,15 @@
  * ThumbnailAnalysisModal Component
  * Shows top thumbnails with metrics and slider control
  * OPTIMIZED: Exactly 6 videos per scroll
- * Update: "Watch on YouTube" appears only after 4s hover
+ * NEW: Filter by YouTube category (Music, Sports, Gaming, etc.)
  */
-import React, { useState, useMemo, useRef } from 'react';
-import { X, Eye, ThumbsUp, MessageCircle, TrendingUp } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { X, Eye, ThumbsUp, MessageCircle, TrendingUp, Filter } from 'lucide-react';
 
 const ThumbnailAnalysisModal = ({ videos, isOpen, onClose }) => {
   const [topCount, setTopCount] = useState(20);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   // Calculate engagement rate helper
   const calculateEngagement = (video) => {
@@ -23,7 +24,21 @@ const ThumbnailAnalysisModal = ({ videos, isOpen, onClose }) => {
     return parseFloat(((likes + comments) / views * 100).toFixed(2));
   };
 
-  // Get top N videos by views with search filter
+  // Get unique categories from videos
+  const availableCategories = useMemo(() => {
+    if (!videos || videos.length === 0) return [];
+    
+    const categorySet = new Set();
+    videos.forEach(video => {
+      if (video.categoryName && video.categoryName !== 'Unknown') {
+        categorySet.add(video.categoryName);
+      }
+    });
+    
+    return Array.from(categorySet).sort();
+  }, [videos]);
+
+  // Get top N videos with filters
   const topVideos = useMemo(() => {
     if (!videos || videos.length === 0) return [];
 
@@ -38,6 +53,14 @@ const ThumbnailAnalysisModal = ({ videos, isOpen, onClose }) => {
       );
     }
 
+    // Apply category filter
+    if (selectedCategory !== 'all') {
+      filteredVideos = filteredVideos.filter(video => 
+        video.categoryName === selectedCategory
+      );
+    }
+
+    // Sort by views and add engagement
     return filteredVideos
       .sort((a, b) => parseInt(b.viewCount || 0) - parseInt(a.viewCount || 0))
       .slice(0, topCount)
@@ -45,7 +68,7 @@ const ThumbnailAnalysisModal = ({ videos, isOpen, onClose }) => {
         ...video,
         engagement: calculateEngagement(video),
       }));
-  }, [videos, topCount, searchQuery]);
+  }, [videos, topCount, searchQuery, selectedCategory]);
 
   // Format numbers
   const formatNumber = (num) => {
@@ -73,98 +96,6 @@ const ThumbnailAnalysisModal = ({ videos, isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  // ----- Per-card component to handle 4s hover reveal -----
-  const ThumbnailItem = ({ video, index }) => {
-    const [showWatch, setShowWatch] = useState(false);
-    const timerRef = useRef(null);
-
-    const startTimer = () => {
-      // start a 4s timer
-      timerRef.current = setTimeout(() => setShowWatch(true), 4000);
-    };
-    const clearTimer = () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = null;
-      setShowWatch(false);
-    };
-
-    return (
-      <div
-        onMouseEnter={startTimer}
-        onMouseLeave={clearTimer}
-        onFocus={startTimer}
-        onBlur={clearTimer}
-        tabIndex={0} // accessible focus
-        className="bg-white dark:bg-gray-900 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all flex gap-4 outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        {/* Rank & Thumbnail */}
-        <div className="relative flex-shrink-0" style={{ width: '220px' }}>
-          <div className="absolute top-2 left-2 bg-blue-600 text-white px-2.5 py-1 rounded-md text-sm font-bold z-10 shadow-lg">
-            #{index + 1}
-          </div>
-
-          <img
-            src={getThumbnailUrl(video)}
-            alt={video.title || 'Video thumbnail'}
-            className="w-full h-32 object-cover"
-            onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/220x130?text=No+Thumbnail';
-            }}
-          />
-        </div>
-
-        {/* Info */}
-        <div className="flex-1 p-3 min-w-0 flex flex-col justify-between">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 mb-2">
-            {video.title || 'Untitled Video'}
-          </h3>
-
-          <div className="flex flex-wrap gap-2 mb-2">
-            <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-md px-2 py-1">
-              <Eye size={14} className="text-blue-600 dark:text-blue-400" />
-              <span className="text-xs font-bold text-gray-900 dark:text-white">
-                {formatNumber(parseInt(video.viewCount || 0))}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5 bg-green-50 dark:bg-green-900/20 rounded-md px-2 py-1">
-              <TrendingUp size={14} className="text-green-600 dark:text-green-400" />
-              <span className="text-xs font-bold text-gray-900 dark:text-white">
-                {video.engagement.toFixed(1)}%
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5 bg-purple-50 dark:bg-purple-900/20 rounded-md px-2 py-1">
-              <ThumbsUp size={14} className="text-purple-600 dark:text-purple-400" />
-              <span className="text-xs font-bold text-gray-900 dark:text-white">
-                {formatNumber(parseInt(video.likeCount || 0))}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5 bg-orange-50 dark:bg-orange-900/20 rounded-md px-2 py-1">
-              <MessageCircle size={14} className="text-orange-600 dark:text-orange-400" />
-              <span className="text-xs font-bold text-gray-900 dark:text-white">
-                {formatNumber(parseInt(video.commentCount || 0))}
-              </span>
-            </div>
-          </div>
-
-          {/* Watch Button — only after 4s hover */}
-          {showWatch && (
-            <a
-              href={`https://www.youtube.com/watch?v=${video.videoId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block text-center px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg"
-            >
-              Watch on YouTube
-            </a>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-end bg-black bg-opacity-50 backdrop-blur-sm">
       <div className="bg-white dark:bg-gray-800 rounded-l-2xl shadow-2xl w-1/2 h-full flex flex-col animate-slide-in">
@@ -188,6 +119,7 @@ const ThumbnailAnalysisModal = ({ videos, isOpen, onClose }) => {
 
         {/* Controls */}
         <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-2">
+          {/* Search Bar */}
           <div className="relative">
             <input
               type="text"
@@ -206,6 +138,30 @@ const ThumbnailAnalysisModal = ({ videos, isOpen, onClose }) => {
             )}
           </div>
 
+          {/* Category Filter */}
+          <div className="flex items-center gap-2">
+            <Filter size={16} className="text-gray-600 dark:text-gray-400" />
+            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Category:
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="flex-1 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+            >
+              <option value="all">All Categories ({videos.length})</option>
+              {availableCategories.map(category => {
+                const count = videos.filter(v => v.categoryName === category).length;
+                return (
+                  <option key={category} value={category}>
+                    {category} ({count})
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          {/* Count Control */}
           <div className="flex items-center justify-between">
             <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
               Show: {topCount} videos
@@ -238,22 +194,91 @@ const ThumbnailAnalysisModal = ({ videos, isOpen, onClose }) => {
           />
         </div>
 
-        {/* List (your layout tuned for 6 per scroll visually) */}
+        {/* Thumbnail List - Sized for exactly 6 per scroll */}
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-4">
             {topVideos.map((video, index) => (
-              <ThumbnailItem
+              <div
                 key={video.videoId || index}
-                video={video}
-                index={index}
-              />
+                className="bg-white dark:bg-gray-900 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all flex gap-4"
+              >
+                {/* Rank & Thumbnail */}
+                <div className="relative flex-shrink-0" style={{ width: '220px' }}>
+                  <div className="absolute top-2 left-2 bg-blue-600 text-white px-2.5 py-1 rounded-md text-sm font-bold z-10 shadow-lg">
+                    #{index + 1}
+                  </div>
+
+                  {/* Category Badge */}
+                  {video.categoryName && video.categoryName !== 'Unknown' && (
+                    <div className="absolute bottom-2 left-2 bg-purple-600 text-white px-2 py-0.5 rounded text-[10px] font-semibold z-10 shadow-lg">
+                      {video.categoryName}
+                    </div>
+                  )}
+
+                  {/* Thumbnail */}
+                  <img
+                    src={getThumbnailUrl(video)}
+                    alt={video.title || 'Video thumbnail'}
+                    className="w-full h-32 object-cover"
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/220x130?text=No+Thumbnail';
+                    }}
+                  />
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 p-3 min-w-0 flex flex-col justify-between">
+                  {/* Title & Channel */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 mb-1">
+                      {video.title || 'Untitled Video'}
+                    </h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                      {video.channelTitle || 'Unknown Channel'}
+                    </p>
+                  </div>
+
+                  {/* Metrics */}
+                  <div className="flex flex-wrap gap-2">
+                    <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-md px-2 py-1">
+                      <Eye size={14} className="text-blue-600 dark:text-blue-400" />
+                      <span className="text-xs font-bold text-gray-900 dark:text-white">
+                        {formatNumber(parseInt(video.viewCount || 0))}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 bg-green-50 dark:bg-green-900/20 rounded-md px-2 py-1">
+                      <TrendingUp size={14} className="text-green-600 dark:text-green-400" />
+                      <span className="text-xs font-bold text-gray-900 dark:text-white">
+                        {video.engagement.toFixed(1)}%
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 bg-purple-50 dark:bg-purple-900/20 rounded-md px-2 py-1">
+                      <ThumbsUp size={14} className="text-purple-600 dark:text-purple-400" />
+                      <span className="text-xs font-bold text-gray-900 dark:text-white">
+                        {formatNumber(parseInt(video.likeCount || 0))}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 bg-orange-50 dark:bg-orange-900/20 rounded-md px-2 py-1">
+                      <MessageCircle size={14} className="text-orange-600 dark:text-orange-400" />
+                      <span className="text-xs font-bold text-gray-900 dark:text-white">
+                        {formatNumber(parseInt(video.commentCount || 0))}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
 
+          {/* Empty State */}
           {topVideos.length === 0 && (
             <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
               <Eye size={48} className="mb-4 opacity-50" />
-              <p className="text-lg font-semibold">No videos available</p>
+              <p className="text-lg font-semibold">No videos found</p>
+              <p className="text-sm mt-2">Try changing your filters</p>
             </div>
           )}
         </div>
@@ -262,7 +287,12 @@ const ThumbnailAnalysisModal = ({ videos, isOpen, onClose }) => {
         <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              <strong>{topVideos.length}</strong> of <strong>{videos.length}</strong> videos
+              Showing <strong>{topVideos.length}</strong> of <strong>{videos.length}</strong> videos
+              {selectedCategory !== 'all' && (
+                <span className="text-purple-600 dark:text-purple-400 ml-1">
+                  in {selectedCategory}
+                </span>
+              )}
             </p>
             <button
               onClick={onClose}
