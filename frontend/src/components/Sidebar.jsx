@@ -17,7 +17,6 @@ function Sidebar() {
     { name: 'Home', path: '/dashboard', icon: Home },
     { name: 'Search', path: '/search', icon: Search },
     { name: 'Analytics', path: '/analytics', icon: BarChart3 },
-    { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
   return (

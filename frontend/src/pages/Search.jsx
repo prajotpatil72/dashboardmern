@@ -395,7 +395,7 @@ const Search = () => {
               <Users size={20} />
               Channel ID
             </button>
-            <button
+            {/* <button
               onClick={() => setSearchType('trending')}
               className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
                 searchType === 'trending'
@@ -405,7 +405,7 @@ const Search = () => {
             >
               <TrendingUp size={20} />
               Trending
-            </button>
+            </button> */}
           </div>
 
           {/* Search Form */}

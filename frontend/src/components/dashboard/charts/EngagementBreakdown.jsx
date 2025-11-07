@@ -204,7 +204,7 @@ const EngagementBreakdown = ({ videos }) => {
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            📊 Views vs Engagement Rate
+            📊 Engagement Rate vs Videos
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
             Scatter plot showing the relationship between video views and engagement rates
