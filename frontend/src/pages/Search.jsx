@@ -1,15 +1,28 @@
 /**
- * Search Page - FIXED with robust response handling
- * Handles both response.data.results and response.data.data.results
+ * Search Page - WITH ADVANCED SEARCH MODAL
+ * Enhanced with comprehensive filtering capabilities
  */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { Search as SearchIcon, Loader2, AlertCircle, TrendingUp, BarChart3, Video, Users, X, Trash2 } from 'lucide-react';
+import { 
+  Search as SearchIcon, 
+  Loader2, 
+  AlertCircle, 
+  TrendingUp, 
+  BarChart3, 
+  Video, 
+  Users, 
+  X, 
+  Trash2,
+  Filter,
+  SlidersHorizontal 
+} from 'lucide-react';
 import { youtubeAPI } from '../api/youtube';
 import { useAuth } from '../contexts/AuthContext';
 import { useSelection } from '../contexts/SelectionContext';
 import VideoGrid from '../components/video/VideoGrid';
+import AdvancedSearchModal from '../components/AdvancedSearchModal';
 
 const Search = () => {
   const { user } = useAuth();
@@ -33,6 +46,19 @@ const Search = () => {
   const [results, setResults] = useState([]);
   const [searchStartTime, setSearchStartTime] = useState(0);
   const [quotaUsed, setQuotaUsed] = useState(0);
+  
+  // Advanced Search Modal State
+  const [showAdvancedModal, setShowAdvancedModal] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({
+    minViews: 0,
+    minLikes: 0,
+    minComments: 0,
+    publishedAfter: '',
+    category: '',
+    duration: 'any',
+    maxResults: 50,
+  });
+  const [activeFiltersCount, setActiveFiltersCount] = useState(0);
 
   // Load search history from localStorage
   useEffect(() => {
@@ -50,19 +76,119 @@ const Search = () => {
     if (savedQuota) {
       setQuotaUsed(parseInt(savedQuota));
     }
+    
+    // Load saved advanced filters
+    const savedFilters = localStorage.getItem('advancedFilters');
+    if (savedFilters) {
+      try {
+        const filters = JSON.parse(savedFilters);
+        setAdvancedFilters(filters);
+        calculateActiveFilters(filters);
+      } catch (error) {
+        console.error('Failed to load advanced filters:', error);
+      }
+    }
   }, []);
+
+  // Calculate active filters count
+  const calculateActiveFilters = (filters) => {
+    const defaultFilters = {
+      minViews: 0,
+      minLikes: 0,
+      minComments: 0,
+      publishedAfter: '',
+      category: '',
+      duration: 'any',
+      maxResults: 50,
+    };
+    
+    const count = Object.keys(filters).filter(key => {
+      if (key === 'maxResults') return false;
+      const value = filters[key];
+      const defaultValue = defaultFilters[key];
+      return value !== defaultValue && value !== '' && value !== 0;
+    }).length;
+    
+    setActiveFiltersCount(count);
+  };
+
+  // Handle applying advanced filters
+  const handleApplyAdvancedFilters = (filters) => {
+    setAdvancedFilters(filters);
+    setMaxResults(filters.maxResults);
+    calculateActiveFilters(filters);
+    
+    // Save to localStorage
+    localStorage.setItem('advancedFilters', JSON.stringify(filters));
+    
+    console.log('✨ Advanced filters applied:', filters);
+  };
+
+  // Filter results based on advanced filters
+  const applyClientSideFilters = (videos) => {
+    return videos.filter(video => {
+      // Apply minimum views filter
+      if (advancedFilters.minViews > 0 && video.viewCount < advancedFilters.minViews) {
+        return false;
+      }
+      
+      // Apply minimum likes filter
+      if (advancedFilters.minLikes > 0 && video.likeCount < advancedFilters.minLikes) {
+        return false;
+      }
+      
+      // Apply minimum comments filter
+      if (advancedFilters.minComments > 0 && video.commentCount < advancedFilters.minComments) {
+        return false;
+      }
+      
+      // Apply published after filter
+      if (advancedFilters.publishedAfter) {
+        const publishedDate = new Date(video.publishedAt);
+        const filterDate = new Date(advancedFilters.publishedAfter);
+        if (publishedDate < filterDate) {
+          return false;
+        }
+      }
+      
+      // Apply duration filter
+      if (advancedFilters.duration !== 'any' && video.duration) {
+        const durationSeconds = video.duration;
+        if (advancedFilters.duration === 'short' && durationSeconds >= 240) {
+          return false;
+        }
+        if (advancedFilters.duration === 'medium' && (durationSeconds < 240 || durationSeconds > 1200)) {
+          return false;
+        }
+        if (advancedFilters.duration === 'long' && durationSeconds <= 1200) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  };
 
   // Search mutation with ROBUST data extraction
   const searchMutation = useMutation({
     mutationFn: (searchParams) => {
+      // Add category to search params if set
+      const params = { ...searchParams };
+      if (advancedFilters.category && searchType === 'keyword') {
+        params.videoCategoryId = advancedFilters.category;
+      }
+      if (advancedFilters.publishedAfter && searchType === 'keyword') {
+        params.publishedAfter = `${advancedFilters.publishedAfter}T00:00:00Z`;
+      }
+      
       if (searchType === 'keyword') {
-        return youtubeAPI.search(searchParams);
+        return youtubeAPI.search(params);
       } else if (searchType === 'video') {
-        return youtubeAPI.getVideo(searchParams.q);
+        return youtubeAPI.getVideo(params.q);
       } else if (searchType === 'channel') {
-        return youtubeAPI.getChannel(searchParams.q);
+        return youtubeAPI.getChannel(params.q);
       } else if (searchType === 'trending') {
-        return youtubeAPI.getTrending({ maxResults: searchParams.maxResults });
+        return youtubeAPI.getTrending({ maxResults: params.maxResults });
       }
     },
     onSuccess: (response) => {
@@ -74,44 +200,27 @@ const Search = () => {
       console.log('Full response:', response);
       console.log('Response.data:', response.data);
       console.log('Response.data.data:', response.data?.data);
-      console.log('Response.data.data.results:', response.data?.data?.results);
-      console.log('Response.data.results:', response.data?.results);
-      
-      // ROBUST: Try multiple data access patterns
-      // Backend returns: { success: true, data: { results: [...] } }
-      // Axios wraps as: response.data = { success: true, data: { results: [...] } }
       
       const tryExtract = (obj) => {
-        // Try all possible paths
-        return obj?.data?.data?.results ||  // Nested: response.data.data.results
-               obj?.data?.results ||         // One level: response.data.results  
-               obj?.results ||               // Direct: response.results
+        return obj?.data?.data?.results ||
+               obj?.data?.results ||
+               obj?.results ||
                [];
       };
       
       if (searchType === 'keyword') {
         searchResults = tryExtract(response);
-        
-        console.log('📊 Keyword search results:', searchResults);
-        console.log('📊 Results count:', searchResults.length);
-        console.log('📊 First video:', searchResults[0]);
-        
-        // Update search metadata for analytics
         const queryValue = response.data?.data?.query || response.data?.query || query;
         setSearchMetadata(queryValue, 'keyword', searchResults.length);
         
       } else if (searchType === 'video') {
         const video = response.data?.data?.video || response.data?.video;
         searchResults = video ? [video] : [];
-        
-        console.log('🎥 Video result:', searchResults);
         setSearchMetadata(query, 'video', searchResults.length);
         
       } else if (searchType === 'channel') {
         const videos = response.data?.data?.videos || response.data?.videos || [];
         searchResults = videos;
-        
-        console.log('📺 Channel videos:', searchResults);
         const channelTitle = response.data?.data?.channel?.channelTitle || 
                            response.data?.channel?.channelTitle || 
                            query;
@@ -119,22 +228,17 @@ const Search = () => {
         
       } else if (searchType === 'trending') {
         searchResults = tryExtract(response);
-        
-        console.log('🔥 Trending results:', searchResults);
         setSearchMetadata('Trending Videos', 'trending', searchResults.length);
       }
       
-      console.log('✅ FINAL searchResults:', searchResults);
-      console.log('✅ Will set results with', searchResults.length, 'videos');
-      console.log('═══════════════════════════════════════════\n');
+      console.log('✅ Raw results count:', searchResults.length);
       
-      // CRITICAL: Set results state
-      setResults(searchResults);
+      // Apply client-side filters
+      const filteredResults = applyClientSideFilters(searchResults);
+      console.log('✅ Filtered results count:', filteredResults.length);
+      console.log('🎯 Active filters:', advancedFilters);
       
-      // Verify state was set
-      setTimeout(() => {
-        console.log('🔍 Verification - results state after setResults:', searchResults.length);
-      }, 100);
+      setResults(filteredResults);
       
       // Add to search history
       if (query.trim() && searchType !== 'trending') {
@@ -143,7 +247,7 @@ const Search = () => {
             query: query.trim(),
             type: searchType,
             timestamp: new Date().toISOString(),
-            resultCount: searchResults.length,
+            resultCount: filteredResults.length,
           },
           ...searchHistory.filter(h => h.query !== query.trim()).slice(0, 9)
         ];
@@ -156,13 +260,11 @@ const Search = () => {
       setQuotaUsed(newQuota);
       localStorage.setItem('quotaUsed', newQuota.toString());
       
-      // Calculate search time
       const searchTime = Date.now() - searchStartTime;
       console.log(`⏱️ Search completed in ${searchTime}ms`);
     },
     onError: (error) => {
       console.error('❌ Search Error:', error);
-      console.error('❌ Error response:', error.response);
       setValidationError(error.response?.data?.error || 'Search failed. Please try again.');
     },
   });
@@ -172,7 +274,6 @@ const Search = () => {
     e?.preventDefault();
     setValidationError('');
     
-    // Validation
     if (searchType !== 'trending' && !query.trim()) {
       setValidationError('Please enter a search query');
       return;
@@ -188,7 +289,7 @@ const Search = () => {
     
     const searchParams = searchType === 'trending' 
       ? { maxResults: trendingCount }
-      : { q: query.trim(), maxResults };
+      : { q: query.trim(), maxResults: advancedFilters.maxResults };
     
     searchMutation.mutate(searchParams);
   };
@@ -200,7 +301,7 @@ const Search = () => {
     setValidationError('');
     
     setSearchStartTime(Date.now());
-    const searchParams = { q: historyItem.query, maxResults };
+    const searchParams = { q: historyItem.query, maxResults: advancedFilters.maxResults };
     searchMutation.mutate(searchParams);
   };
 
@@ -227,8 +328,6 @@ const Search = () => {
     navigate('/analytics');
   };
 
-  console.log('🎬 Search component render - results.length:', results.length);
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -243,7 +342,7 @@ const Search = () => {
           </p>
           
           {/* Quota Display */}
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-2 flex-wrap">
             <div className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
               <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
                 Daily Quota: {quotaUsed}/100 searches
@@ -311,8 +410,8 @@ const Search = () => {
 
           {/* Search Form */}
           <form onSubmit={handleSearch} className="space-y-4">
-            {searchType !== 'trending' && (
-              <div>
+            <div className="flex gap-2">
+              {searchType !== 'trending' && (
                 <input
                   type="text"
                   value={query}
@@ -324,42 +423,41 @@ const Search = () => {
                       ? 'Enter video ID (e.g., dQw4w9WgXcQ)'
                       : 'Enter channel ID (e.g., UCsBjURrPoezykLs9EqgamOA)'
                   }
-                  className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all"
+                  className="flex-1 px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 transition-all"
                 />
-              </div>
-            )}
-
-            {searchType === 'keyword' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Max Results: {maxResults}
-                </label>
-                <input
-                  type="range"
-                  min="10"
-                  max="50"
-                  value={maxResults}
-                  onChange={(e) => setMaxResults(parseInt(e.target.value))}
-                  className="w-full"
-                />
-              </div>
-            )}
-
-            {searchType === 'trending' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Number of Videos: {trendingCount}
-                </label>
-                <input
-                  type="range"
-                  min="10"
-                  max="50"
-                  value={trendingCount}
-                  onChange={(e) => setTrendingCount(parseInt(e.target.value))}
-                  className="w-full"
-                />
-              </div>
-            )}
+              )}
+              
+              {searchType === 'trending' && (
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Number of Videos: {trendingCount}
+                  </label>
+                  <input
+                    type="range"
+                    min="10"
+                    max="50"
+                    value={trendingCount}
+                    onChange={(e) => setTrendingCount(parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+              )}
+              
+              {/* Advanced Search Button */}
+              <button
+                type="button"
+                onClick={() => setShowAdvancedModal(true)}
+                className="relative px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"
+              >
+                <SlidersHorizontal size={20} />
+                Advanced
+                {activeFiltersCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </button>
+            </div>
 
             <button
               type="submit"
@@ -388,6 +486,50 @@ const Search = () => {
             </div>
           )}
         </div>
+
+        {/* Active Filters Display */}
+        {activeFiltersCount > 0 && (
+          <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 border border-purple-200 dark:border-purple-800">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                <Filter size={18} />
+                Active Filters ({activeFiltersCount})
+              </h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {advancedFilters.minViews > 0 && (
+                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-full text-sm">
+                  Views ≥ {advancedFilters.minViews.toLocaleString()}
+                </span>
+              )}
+              {advancedFilters.minLikes > 0 && (
+                <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-full text-sm">
+                  Likes ≥ {advancedFilters.minLikes.toLocaleString()}
+                </span>
+              )}
+              {advancedFilters.minComments > 0 && (
+                <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 rounded-full text-sm">
+                  Comments ≥ {advancedFilters.minComments.toLocaleString()}
+                </span>
+              )}
+              {advancedFilters.publishedAfter && (
+                <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 rounded-full text-sm">
+                  After {new Date(advancedFilters.publishedAfter).toLocaleDateString()}
+                </span>
+              )}
+              {advancedFilters.category && (
+                <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-full text-sm">
+                  Category Filter
+                </span>
+              )}
+              {advancedFilters.duration !== 'any' && (
+                <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200 rounded-full text-sm">
+                  Duration: {advancedFilters.duration}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Recent Searches */}
         {searchHistory.length > 0 && (
@@ -458,6 +600,14 @@ const Search = () => {
           </div>
         )}
       </div>
+
+      {/* Advanced Search Modal */}
+      <AdvancedSearchModal
+        isOpen={showAdvancedModal}
+        onClose={() => setShowAdvancedModal(false)}
+        onApplyFilters={handleApplyAdvancedFilters}
+        initialFilters={advancedFilters}
+      />
     </div>
   );
 };
