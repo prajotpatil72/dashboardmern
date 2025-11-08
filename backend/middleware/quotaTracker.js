@@ -1,11 +1,5 @@
 const User = require('../models/User');
 
-/**
- * Quota tracking middleware (Tasks 187)
- * Tracks and enforces API usage quotas for authenticated guests
- * Development: No quota limits
- * Production: Enforces quota limits
- */
 const quotaTracker = async (req, res, next) => {
   try {
     // Skip quota tracking in development
@@ -48,28 +42,39 @@ const quotaTracker = async (req, res, next) => {
     
     if (isSearchRequest && req.method === 'GET') {
       // Increment quota
-      await User.findByIdAndUpdate(user._id, {
-        $inc: { quotaUsed: 1 },
-        $push: {
-          searchHistory: {
-            query: req.query.q || req.params.videoId || req.params.channelId || 'trending',
-            timestamp: new Date(),
-            endpoint: req.path,
-            resultCount: 0 // Will be updated by the route handler if needed
+      const updatedUser = await User.findByIdAndUpdate(
+        user._id,
+        {
+          $inc: { quotaUsed: 1 },
+          $push: {
+            searchHistory: {
+              query: req.query.q || req.params.videoId || req.params.channelId || 'trending',
+              timestamp: new Date(),
+              endpoint: req.path,
+              resultCount: 0
+            }
           }
-        }
-      });
+        },
+        { new: true } // Return updated document
+      );
 
-      // Set response headers
-      res.setHeader('X-Quota-Used', user.quotaUsed + 1);
+      // Set response headers with updated values
+      res.setHeader('X-Quota-Used', updatedUser.quotaUsed);
+      res.setHeader('X-Quota-Limit', updatedUser.quotaLimit);
+      res.setHeader('X-Quota-Remaining', updatedUser.quotaLimit - updatedUser.quotaUsed);
+      
+      // Update req.user for downstream middleware
+      req.user = updatedUser;
+    } else {
+      // Set headers for non-search requests
+      res.setHeader('X-Quota-Used', user.quotaUsed);
       res.setHeader('X-Quota-Limit', user.quotaLimit);
-      res.setHeader('X-Quota-Remaining', user.quotaLimit - (user.quotaUsed + 1));
+      res.setHeader('X-Quota-Remaining', user.quotaLimit - user.quotaUsed);
     }
 
     next();
   } catch (error) {
     console.error('[Quota Tracker] Error:', error);
-    // Don't block request on quota tracking errors
     next();
   }
 };

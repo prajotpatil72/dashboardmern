@@ -1,7 +1,8 @@
 /**
  * App.jsx - Updated with Analytics Dashboard (Tasks 241-250)
  */
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import GuestRoute from './components/GuestRoute';
@@ -15,6 +16,10 @@ import ApiTestPage from './pages/ApiTest';
 
 const HomePage = () => {
   const { loginAsGuest } = useAuth();
+
+  useEffect(() => {
+    document.title = 'YouTube Analytics - Home';
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-dark">
@@ -38,6 +43,28 @@ const HomePage = () => {
   );
 };
 
+// Component to handle dynamic page titles
+const PageTitle = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    const titles = {
+      '/': 'YouTube Analytics - Home',
+      '/login': 'YouTube Analytics - Login',
+      '/search': 'YouTube Analytics - Search',
+      '/analytics': 'YouTube Analytics - Dashboard',
+      '/theme': 'YouTube Analytics - Theme Test',
+      '/auth-test': 'YouTube Analytics - Auth Test',
+      '/token-test': 'YouTube Analytics - Token Test',
+      '/api-test': 'YouTube Analytics - API Test',
+    };
+    
+    document.title = titles[location.pathname] || 'YouTube Analytics';
+  }, [location]);
+  
+  return null;
+};
+
 function App() {
   const { loading } = useAuth();
 
@@ -50,21 +77,23 @@ function App() {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<Login />} />
-      
-      <Route element={<Layout />}>
-        <Route path="/search" element={<GuestRoute><Search /></GuestRoute>} />
-        <Route path="/analytics" element={<GuestRoute><Analytics /></GuestRoute>} />
-        <Route path="/theme" element={<GuestRoute><ThemeTestPage /></GuestRoute>} />
-        <Route path="/auth-test" element={<GuestRoute><AuthTestPage /></GuestRoute>} />
-        <Route path="/token-test" element={<GuestRoute><TokenTestPage /></GuestRoute>} />
-        <Route path="/api-test" element={<GuestRoute><ApiTestPage /></GuestRoute>} />
-      </Route>
-
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <PageTitle />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<Login />} />
+        
+        <Route element={<Layout />}>
+          <Route path="/search" element={<GuestRoute><Search /></GuestRoute>} />
+          <Route path="/analytics" element={<GuestRoute><Analytics /></GuestRoute>} />
+          <Route path="/theme" element={<GuestRoute><ThemeTestPage /></GuestRoute>} />
+          <Route path="/auth-test" element={<GuestRoute><AuthTestPage /></GuestRoute>} />
+          <Route path="/token-test" element={<GuestRoute><TokenTestPage /></GuestRoute>} />
+          <Route path="/api-test" element={<GuestRoute><ApiTestPage /></GuestRoute>} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }
 

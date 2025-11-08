@@ -238,7 +238,7 @@ export const calculateSummaryStats = (videos) => {
   // Best day (most videos published)
   const dayCount = {};
   videos.forEach(video => {
-    const publishedDate = video.snippet?.publishedAt;
+    const publishedDate = video.snippet?.publishedAt;   
     if (publishedDate) {
       const day = new Date(publishedDate).toLocaleDateString('en-US', { weekday: 'long' });
       dayCount[day] = (dayCount[day] || 0) + 1;

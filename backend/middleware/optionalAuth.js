@@ -3,27 +3,18 @@ const { jwtSecret } = require('../config/auth');
 const User = require('../models/User');
 const TokenBlacklist = require('../models/TokenBlacklist');
 
-/**
- * Optional authentication middleware
- * Verifies token if present, allows unauthenticated access otherwise
- * Now includes blacklist checking for logout functionality
- */
 const optionalAuth = async (req, res, next) => {
   try {
-    // Extract token from Authorization header
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      // No token provided - allow request to proceed
       req.user = null;
       req.isAuthenticated = false;
       return next();
     }
 
-    // Extract token
     const token = authHeader.split(' ')[1];
 
-    // Task 78: Check if token is blacklisted
     const isBlacklisted = await TokenBlacklist.isBlacklisted(token);
     if (isBlacklisted) {
       req.user = null;
@@ -31,10 +22,7 @@ const optionalAuth = async (req, res, next) => {
       return next();
     }
 
-    // Verify token
     const decoded = jwt.verify(token, jwtSecret);
-
-    // Fetch user from database
     const user = await User.findById(decoded.userId);
 
     if (!user) {
@@ -43,14 +31,31 @@ const optionalAuth = async (req, res, next) => {
       return next();
     }
 
-    // Check if token has expired (additional check)
-    if (user.expiresAt && new Date(user.expiresAt) < new Date()) {
-      req.user = null;
-      req.isAuthenticated = false;
+    // **NEW: Reset quota if session expired, then extend expiration**
+    const now = new Date();
+    if (user.expiresAt && now >= new Date(user.expiresAt)) {
+      const newExpiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+      
+      // Reset quota and extend session
+      await User.findByIdAndUpdate(user._id, {
+        $set: { 
+          quotaUsed: 0,
+          expiresAt: newExpiresAt
+        }
+      });
+      
+      // Refresh user object with updated data
+      const updatedUser = await User.findById(user._id);
+      req.user = updatedUser;
+      req.isAuthenticated = true;
+      req.isGuest = updatedUser.userType === 'GUEST';
+      req.token = token;
+      
+      console.log(`[Auth] Reset quota for user ${user._id} - new expiresAt: ${newExpiresAt}`);
       return next();
     }
 
-    // Attach user to request
+    // Normal flow - session hasn't expired yet
     req.user = user;
     req.isAuthenticated = true;
     req.isGuest = user.userType === 'GUEST';
@@ -58,14 +63,12 @@ const optionalAuth = async (req, res, next) => {
 
     next();
   } catch (error) {
-    // Token invalid or expired - allow request but mark as unauthenticated
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       req.user = null;
       req.isAuthenticated = false;
       return next();
     }
 
-    // Other errors
     console.error('Optional auth middleware error:', error);
     req.user = null;
     req.isAuthenticated = false;
